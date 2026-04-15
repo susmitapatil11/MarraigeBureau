@@ -78,7 +78,7 @@ service cloud.firestore {
     match /chats/{chatId} {
       // Users can only read chats they're participants in
       allow read: if isAuthenticated() && 
-        resource.data.participants.hasAll([request.auth.uid]);
+        resource.data.participants.hasAny([request.auth.uid]);
       
       // Users can create chats only if they're participants
       allow create: if isAuthenticated() && 
@@ -87,7 +87,7 @@ service cloud.firestore {
       
       // Users can update chats they're participants in
       allow update: if isAuthenticated() && 
-        resource.data.participants.hasAll([request.auth.uid]);
+        resource.data.participants.hasAny([request.auth.uid]);
     }
     
     // Messages collection
@@ -99,9 +99,9 @@ service cloud.firestore {
       
       // Users can create messages in chats they're participants in
       allow create: if isAuthenticated() && 
-        resource.data.senderId == request.auth.uid &&
-        exists(/databases/$(database)/documents/chats/$(resource.data.chatId)) &&
-        get(/databases/$(database)/documents/chats/$(resource.data.chatId)).data.participants.hasAll([request.auth.uid]);
+        request.resource.data.senderId == request.auth.uid &&
+        exists(/databases/$(database)/documents/chats/$(request.resource.data.chatId)) &&
+        get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.participants.hasAny([request.auth.uid]);
       
       // Users can update their own messages (edit)
       allow update: if isAuthenticated() && 

@@ -70,15 +70,20 @@ export const chatService = {
     try {
       const q = query(
         collection(db, "chats"),
-        where("participants", "array-contains", userId),
-        orderBy("updatedAt", "desc")
+        where("participants", "array-contains", userId)
       );
 
       const querySnapshot = await getDocs(q);
-      const chats = querySnapshot.docs.map(doc => ({
+      let chats = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      chats.sort((a, b) => {
+        const timeA = a.updatedAt?.toMillis() || 0;
+        const timeB = b.updatedAt?.toMillis() || 0;
+        return timeB - timeA;
+      });
 
       return { success: true, data: chats };
     } catch (error) {
