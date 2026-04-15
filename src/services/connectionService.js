@@ -91,15 +91,21 @@ export const connectionService = {
       const q = query(
         collection(db, "connections"),
         where("receiverId", "==", userId),
-        where("status", "==", "pending"),
-        orderBy("createdAt", "desc")
+        where("status", "==", "pending")
       );
 
       const querySnapshot = await getDocs(q);
-      const requests = querySnapshot.docs.map(doc => ({
+      let requests = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Sort locally to avoid Firebase index requirements
+      requests.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis() || 0;
+        const timeB = b.createdAt?.toMillis() || 0;
+        return timeB - timeA;
+      });
 
       return { success: true, data: requests };
     } catch (error) {
@@ -112,15 +118,21 @@ export const connectionService = {
     try {
       const q = query(
         collection(db, "connections"),
-        where("requesterId", "==", userId),
-        orderBy("createdAt", "desc")
+        where("requesterId", "==", userId)
       );
 
       const querySnapshot = await getDocs(q);
-      const requests = querySnapshot.docs.map(doc => ({
+      let requests = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Sort locally to avoid Firebase index requirements
+      requests.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis() || 0;
+        const timeB = b.createdAt?.toMillis() || 0;
+        return timeB - timeA;
+      });
 
       return { success: true, data: requests };
     } catch (error) {
