@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Send } from "lucide-react";
 import { IconButton } from "../components/Button.jsx";
 import { Glass } from "../components/Glass.jsx";
-import { chatService, userService, connectionService } from "../services/index.js";
+import { Link, useNavigate } from "react-router-dom";
+import { chatService, userService, connectionService, compatibilityService } from "../services/index.js";
 import { auth } from "../firebase.js";
 
 export default function ChatPage() {
@@ -13,6 +14,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [compatibilityStatus, setCompatibilityStatus] = useState("loading");
+  const navigate = useNavigate();
 
   const user = auth.currentUser;
 
@@ -23,8 +26,28 @@ export default function ChatPage() {
   useEffect(() => {
     if (activeId) {
       loadMessages(activeId);
+      loadCompatibility(activeId);
     }
   }, [activeId]);
+
+  const loadCompatibility = async (chatId) => {
+    setCompatibilityStatus("loading");
+    try {
+      const reportRes = await compatibilityService.getReport(chatId);
+      if (reportRes.success) {
+        setCompatibilityStatus("report_ready");
+      } else {
+        const respRes = await compatibilityService.getUserResponse(chatId, user.uid);
+        if (respRes.success) {
+          setCompatibilityStatus("pending_partner");
+        } else {
+          setCompatibilityStatus("none");
+        }
+      }
+    } catch (e) {
+      setCompatibilityStatus("none");
+    }
+  };
 
   const loadChats = async () => {
     if (!user) return;
@@ -153,7 +176,25 @@ export default function ChatPage() {
                 {active ? `User ${active.participants.find(id => id !== user.uid)?.slice(0, 8)}` : "Select a chat"}
               </div>
             </div>
-            <div className="muted text-[12px]">Verified • Premium</div>
+            
+            <div className="flex flex-col md:flex-row items-end md:items-center gap-10">
+              {active && compatibilityStatus === "report_ready" && (
+                <Button variant="secondary" onClick={() => navigate(`/compatibility-report/${active.id}`)} style={{ fontSize: 12, padding: "6px 12px" }}>
+                  View Match Report
+                </Button>
+              )}
+              {active && compatibilityStatus === "pending_partner" && (
+                <div className="pill muted" style={{ fontSize: 12, padding: "6px 12px", border: "1px dashed rgba(255,255,255,0.2)" }}>
+                  Waiting for Partner's Test
+                </div>
+              )}
+              {active && compatibilityStatus === "none" && (
+                <Button onClick={() => navigate(`/compatibility-test/${active.id}`)} style={{ fontSize: 12, padding: "6px 12px" }}>
+                  Take Compatibility Test
+                </Button>
+              )}
+              <div className="muted text-[12px] hidden lg:block">Verified • Premium</div>
+            </div>
           </div>
 
           <div className="hairline" style={{ margin: "14px 0" }} />

@@ -169,6 +169,18 @@ service cloud.firestore {
       allow create: if isAuthenticated() && resource.data.uid == request.auth.uid;
     }
     
+    // Test Responses collection
+    match /testResponses/{responseId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Compatibility Reports collection
+    match /compatibilityReports/{reportId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.participants.hasAny([request.auth.uid]));
+      allow create, update: if isAuthenticated() && request.resource.data.participants.hasAny([request.auth.uid]);
+    }
+
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;

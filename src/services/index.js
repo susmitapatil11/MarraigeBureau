@@ -7,3 +7,4 @@ export { interestService } from "./interestService.js";
 export { notificationService } from "./notificationService.js";
 export { storyService } from "./storyService.js";
 export { searchService } from "./searchService.js";
+export { compatibilityService } from "./compatibilityService.js";

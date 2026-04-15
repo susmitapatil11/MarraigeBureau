@@ -1,15 +1,74 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Heart } from "lucide-react";
 import { Button } from "../components/Button.jsx";
 import { Glass } from "../components/Glass.jsx";
 import { ProfileModal } from "../ui/ProfileModal.jsx";
 import { ProfileCard } from "../ui/ProfileCard.jsx";
-import { profiles } from "../ui/mockData.js";
+import { searchService, userService, connectionService } from "../services/index.js";
+import { auth } from "../firebase.js";
 
 export default function RecommendationsPage() {
   const [selected, setSelected] = useState(null);
-  const list = useMemo(() => profiles, []);
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setLoading(true);
+      try {
+        let lookingFor = "Bride"; // Default if not logged in
+        if (user) {
+          const userProfile = await userService.getProfile(user.uid);
+          if (userProfile.success && userProfile.data?.lookingFor) {
+            lookingFor = userProfile.data.lookingFor === "Bride" ? "Groom" : "Bride";
+          }
+        }
+        
+        const result = await searchService.advancedSearch({ lookingFor, limit: 20 });
+        if (result.success) {
+          const formatted = result.data
+            .filter(u => u.id !== user?.uid)
+            .map(u => ({
+              id: u.id,
+              name: u.fullName || "User",
+              age: u.age || "--",
+              location: u.location || "Unknown",
+              title: u.profession || "Not specified",
+              match: Math.floor(Math.random() * 15) + 85, // Mock score for now
+              badges: u.isVerified ? ["Verified"] : [],
+              about: u.aboutMe || "No description provided.",
+              image: u.photoUrl || "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=70"
+            }));
+          setList(formatted);
+        }
+      } catch (e) {
+        console.error("Failed to load recommendations");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRecommendations();
+  }, [user]);
+
+  const handleSendInterest = async (toUserId) => {
+    if (!user) {
+      alert("Please login to send interest");
+      return;
+    }
+    try {
+      const result = await connectionService.sendRequest(user.uid, toUserId, 85);
+      if (result.success) {
+        alert("Interest sent successfully!");
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      alert("Failed to send interest");
+    }
+  };
 
   return (
     <div className="section">
@@ -49,16 +108,26 @@ export default function RecommendationsPage() {
       </Glass>
 
       <div className="grid gridCols3">
-        {list.map((p, idx) => (
-          <motion.div
-            key={p.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: Math.min(idx * 0.03, 0.2), ease: [0.16, 1, 0.3, 1] }}
-          >
-            <ProfileCard profile={p} onOpen={() => setSelected(p)} showInterest />
-          </motion.div>
-        ))}
+        {loading ? (
+          <div className="muted" style={{ padding: "40px", gridColumn: "1 / -1", textAlign: "center" }}>
+            Loading database profiles...
+          </div>
+        ) : list.length === 0 ? (
+          <div className="muted" style={{ padding: "40px", gridColumn: "1 / -1", textAlign: "center" }}>
+            No registered profiles found right now.
+          </div>
+        ) : (
+          list.map((p, idx) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: Math.min(idx * 0.03, 0.2), ease: [0.16, 1, 0.3, 1] }}
+            >
+              <ProfileCard profile={p} onOpen={() => setSelected(p)} showInterest onSendInterest={handleSendInterest} />
+            </motion.div>
+          ))
+        )}
       </div>
 
       <ProfileModal profile={selected} onClose={() => setSelected(null)} />

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "../components/Button.jsx";
 import { Glass } from "../components/Glass.jsx";
 
-export function ProfileCard({ profile, onOpen, showInterest = false }) {
+export function ProfileCard({ profile, onOpen, showInterest = false, onSendInterest }) {
   return (
     <motion.div transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}>
       <Glass className="p-4" style={{ borderRadius: 22, overflow: "hidden" }}>
@@ -100,7 +100,7 @@ export function ProfileCard({ profile, onOpen, showInterest = false }) {
               View profile
             </Button>
             {showInterest ? (
-              <Button variant="primary">
+              <Button variant="primary" onClick={() => onSendInterest && onSendInterest(profile.id)}>
                 <Heart size={18} />
                 Send Interest
               </Button>

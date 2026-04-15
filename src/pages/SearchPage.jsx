@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { ProfileCard } from "../ui/ProfileCard.jsx";
 import { ProfileModal } from "../ui/ProfileModal.jsx";
-import { searchService, userService } from "../services/index.js";
+import { searchService, userService, connectionService } from "../services/index.js";
 import { auth } from "../firebase.js";
 
 export default function SearchPage() {
@@ -85,6 +85,23 @@ export default function SearchPage() {
 
   const handleSearch = () => {
     performSearch();
+  };
+
+  const handleSendInterest = async (toUserId) => {
+    if (!user) {
+      alert("Please login to send interest");
+      return;
+    }
+    try {
+      const result = await connectionService.sendRequest(user.uid, toUserId, 85);
+      if (result.success) {
+        alert("Interest sent successfully!");
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      alert("Failed to send interest");
+    }
   };
 
   // Transform Firestore data to ProfileCard format
@@ -286,7 +303,7 @@ export default function SearchPage() {
 
           <div className="grid gridCols2">
             {list.map((p) => (
-              <ProfileCard key={p.id} profile={p} onOpen={() => setSelected(p)} showInterest />
+              <ProfileCard key={p.id} profile={p} onOpen={() => setSelected(p)} showInterest onSendInterest={handleSendInterest} />
             ))}
           </div>
         </main>

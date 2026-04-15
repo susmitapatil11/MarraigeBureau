@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Search, SunMoon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconButton } from "./Button.jsx";
+import { auth } from "../firebase.js";
+import { signOut } from "firebase/auth";
+import { userService } from "../services/index.js";
 
 function useScrolled(threshold = 12) {
   const [scrolled, setScrolled] = useState(false);
@@ -87,6 +90,27 @@ export function TopNav({ theme, onToggleTheme }) {
 
 function ProfileMenu() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [profileName, setProfileName] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (u) => {
+      setUser(u);
+      if (u) {
+        const res = await userService.getProfile(u.uid);
+        if (res.success && res.data) {
+          setProfileName(res.data.fullName || "User");
+        } else {
+          setProfileName("Profile");
+        }
+      } else {
+        setProfileName("");
+      }
+    });
+    return unsubscribe;
+  }, []);
+
   useEffect(() => {
     const onDown = (e) => {
       if (e.key === "Escape") setOpen(false);
@@ -94,6 +118,25 @@ function ProfileMenu() {
     window.addEventListener("keydown", onDown);
     return () => window.removeEventListener("keydown", onDown);
   }, []);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setOpen(false);
+    navigate("/");
+  };
+
+  const menuItems = user 
+    ? [
+        { label: "Dashboard", to: "/dashboard" },
+        { label: "My Profile", to: "/profile" },
+        { label: "Search", to: "/search" }
+      ]
+    : [
+        { label: "Login", to: "/login" },
+        { label: "Register", to: "/register" }
+      ];
+
+  const initial = profileName ? profileName.charAt(0).toUpperCase() : "U";
 
   return (
     <div className="relative">
@@ -104,8 +147,8 @@ function ProfileMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <span className="fmsProfileAvatar" aria-hidden="true">F</span>
-        <span className="hidden sm:block">Login / Profile</span>
+        <span className="fmsProfileAvatar" aria-hidden="true">{user ? initial : "?"}</span>
+        <span className="hidden sm:block">{user ? profileName : "Login / Register"}</span>
       </motion.button>
 
       <AnimatePresence>
@@ -118,13 +161,7 @@ function ProfileMenu() {
             className="fmsProfileMenu"
           >
             <div className="glass" style={{ borderRadius: 14, padding: 8 }} role="menu">
-              {[
-                { label: "Dashboard", to: "/dashboard" },
-                { label: "My Profile", to: "/profile" },
-                { label: "Search", to: "/search" },
-                { label: "Login", to: "/login" },
-                { label: "Register", to: "/register" }
-              ].map((it) => (
+              {menuItems.map((it) => (
                 <Link
                   key={it.to}
                   to={it.to}
@@ -135,6 +172,16 @@ function ProfileMenu() {
                   {it.label}
                 </Link>
               ))}
+              {user && (
+                <button
+                  onClick={handleLogout}
+                  className="fmsMenuItem"
+                  role="menuitem"
+                  style={{ width: "100%", textAlign: "left", color: "var(--danger, #ff5a6a)" }}
+                >
+                  Logout
+                </button>
+              )}
             </div>
           </motion.div>
         )}

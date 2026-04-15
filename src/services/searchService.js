@@ -89,24 +89,36 @@ export const searchService = {
         constraints.push(where("lookingFor", "==", filters.lookingFor));
       }
 
-      if (filters.ageMin !== undefined) {
-        constraints.push(where("age", ">=", filters.ageMin));
+      let hasAgeInequality = false;
+
+      if (filters.ageMin !== undefined && filters.ageMin !== "") {
+        constraints.push(where("age", ">=", parseInt(filters.ageMin, 10)));
+        hasAgeInequality = true;
       }
 
-      if (filters.ageMax !== undefined) {
-        constraints.push(where("age", "<=", filters.ageMax));
+      if (filters.ageMax !== undefined && filters.ageMax !== "") {
+        constraints.push(where("age", "<=", parseInt(filters.ageMax, 10)));
+        hasAgeInequality = true;
       }
 
-      if (filters.religion && filters.religion.length > 0) {
-        constraints.push(where("religion", "in", filters.religion));
+      if (filters.religion) {
+        if (Array.isArray(filters.religion)) {
+          constraints.push(where("religion", "in", filters.religion));
+        } else {
+          constraints.push(where("religion", "==", filters.religion));
+        }
       }
 
       if (filters.caste) {
         constraints.push(where("caste", "==", filters.caste));
       }
 
-      if (filters.education && filters.education.length > 0) {
-        constraints.push(where("education", "in", filters.education));
+      if (filters.education) {
+        if (Array.isArray(filters.education)) {
+          constraints.push(where("education", "in", filters.education));
+        } else {
+          constraints.push(where("education", "==", filters.education));
+        }
       }
 
       if (filters.profession) {
@@ -121,12 +133,20 @@ export const searchService = {
         constraints.push(where("income", "==", filters.income));
       }
 
-      if (filters.lifestyle && filters.lifestyle.length > 0) {
-        constraints.push(where("familyValues", "in", filters.lifestyle));
+      if (filters.lifestyle) {
+        if (Array.isArray(filters.lifestyle)) {
+          constraints.push(where("familyValues", "in", filters.lifestyle));
+        } else {
+          constraints.push(where("familyValues", "==", filters.lifestyle));
+        }
       }
 
       // Add ordering
-      constraints.push(orderBy("lastActive", "desc"));
+      if (hasAgeInequality) {
+        constraints.push(orderBy("age"));
+      } else {
+        constraints.push(orderBy("lastActive", "desc"));
+      }
 
       // Add limit
       constraints.push(limit(filters.limit || 50));
