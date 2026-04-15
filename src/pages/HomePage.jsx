@@ -49,6 +49,8 @@ export default function HomePage() {
 }
 
 function Hero({ onOpenProfile }) {
+  const heroImg =
+    "https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?auto=format&fit=crop&w=1600&q=70";
   return (
     <div style={{ paddingTop: 10 }}>
       <motion.div
@@ -63,11 +65,33 @@ function Hero({ onOpenProfile }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `linear-gradient(90deg, rgba(248,245,240,0.95), rgba(248,245,240,0.78), rgba(248,245,240,0.40)), url(${heroImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "saturate(1.05) contrast(1.03)",
+            opacity: 0.92
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(900px 420px at 12% 0%, rgba(197,164,109,0.18), transparent 64%), radial-gradient(820px 520px at 88% 14%, rgba(128,0,32,0.10), transparent 64%)",
+            opacity: 0.65
+          }}
+        />
         <div style={{ position: "relative", zIndex: 2 }} className="grid" >
           <div className="kicker">Find My Self</div>
           <h1 className="h1">
             Find Your Life Partner <br />
-            <span style={{ fontStyle: "italic" }}>with Trust and Tradition</span>
+            <span style={{ color: "var(--maroon)", fontWeight: 700 }}>with Trust and Tradition</span>
           </h1>
           <p className="muted" style={{ fontSize: 16, maxWidth: 720, lineHeight: 1.75 }}>
             A reliable platform for meaningful connections. Clear profiles, respectful communication,

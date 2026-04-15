@@ -1,0 +1,177 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function canAccessProfile(otherUserId) {
+      return isAuthenticated() && (
+        isOwner(otherUserId) || 
+        isUserConnected(otherUserId)
+      );
+    }
+    
+    function isUserConnected(otherUserId) {
+      // Check if there's an accepted connection between users
+      return exists(/databases/$(database)/documents/connections/$(request.auth.uid + '_' + otherUserId)) ||
+             exists(/databases/$(database)/documents/connections/$(otherUserId + '_' + request.auth.uid));
+    }
+    
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll([
+        'uid', 'fullName', 'email', 'phone', 'lookingFor', 'age', 
+        'height', 'maritalStatus', 'motherTongue', 'location', 'religion',
+        'education', 'profession', 'familyType', 'familyValues', 'diet',
+        'aboutMe', 'partnerPreferences', 'createdAt', 'updatedAt'
+      ]);
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isOwner(userId);
+      
+      // Users can write their own profile with validation
+      allow write: if isOwner(userId) && isValidUserData();
+      
+      // Public profile access (limited fields)
+      allow read: if isAuthenticated() && 
+        request.resource.data.keys().hasAll(['uid', 'fullName', 'age', 'location', 'profession', 'photoUrl']) &&
+        request.resource.data.keys().size() <= 6;
+    }
+    
+    // Images collection
+    match /images/{imageId} {
+      // Users can only access their own images
+      allow read, write: if isOwner(resource.data.uid);
+      
+      // Profile images are public
+      allow read: if isAuthenticated() && resource.data.type == 'profile';
+    }
+    
+    // Connections collection
+    match /connections/{connectionId} {
+      // Users can read connections they're part of
+      allow read: if isAuthenticated() && (
+        resource.data.requesterId == request.auth.uid || 
+        resource.data.receiverId == request.auth.uid
+      );
+      
+      // Users can create connections (send requests)
+      allow create: if isAuthenticated() && 
+        request.resource.data.requesterId == request.auth.uid &&
+        request.resource.data.receiverId != request.auth.uid;
+      
+      // Users can update connections they're part of (accept/reject)
+      allow update: if isAuthenticated() && (
+        (resource.data.requesterId == request.auth.uid) ||
+        (resource.data.receiverId == request.auth.uid)
+      );
+    }
+    
+    // Chats collection
+    match /chats/{chatId} {
+      // Users can only read chats they're participants in
+      allow read: if isAuthenticated() && 
+        resource.data.participants.hasAll([request.auth.uid]);
+      
+      // Users can create chats only if they're participants
+      allow create: if isAuthenticated() && 
+        request.resource.data.participants.hasAll([request.auth.uid]) &&
+        request.resource.data.participants.size() == 2;
+      
+      // Users can update chats they're participants in
+      allow update: if isAuthenticated() && 
+        resource.data.participants.hasAll([request.auth.uid]);
+    }
+    
+    // Messages collection
+    match /messages/{messageId} {
+      // Users can read messages from chats they're participants in
+      allow read: if isAuthenticated() && 
+        canAccessProfile(resource.data.chatId.split('_')[0]) ||
+        canAccessProfile(resource.data.chatId.split('_')[1]);
+      
+      // Users can create messages in chats they're participants in
+      allow create: if isAuthenticated() && 
+        resource.data.senderId == request.auth.uid &&
+        exists(/databases/$(database)/documents/chats/$(resource.data.chatId)) &&
+        get(/databases/$(database)/documents/chats/$(resource.data.chatId)).data.participants.hasAll([request.auth.uid]);
+      
+      // Users can update their own messages (edit)
+      allow update: if isAuthenticated() && 
+        resource.data.senderId == request.auth.uid;
+    }
+    
+    // Interests collection
+    match /interests/{interestId} {
+      // Users can read interests they're involved in
+      allow read: if isAuthenticated() && (
+        resource.data.fromUserId == request.auth.uid || 
+        resource.data.toUserId == request.auth.uid
+      );
+      
+      // Users can create interests (send to others)
+      allow create: if isAuthenticated() && 
+        resource.data.fromUserId == request.auth.uid &&
+        resource.data.toUserId != request.auth.uid;
+      
+      // Users can update interests they're involved in (accept/reject)
+      allow update: if isAuthenticated() && (
+        resource.data.fromUserId == request.auth.uid ||
+        resource.data.toUserId == request.auth.uid
+      );
+    }
+    
+    // Search filters collection
+    match /searchFilters/{filterId} {
+      // Users can only read their own search filters
+      allow read, write: if isOwner(resource.data.uid);
+    }
+    
+    // Stories collection
+    match /stories/{storyId} {
+      // Anyone can read stories
+      allow read: if true;
+      
+      // Only authenticated users can create stories
+      allow create: if isAuthenticated();
+      
+      // Only story creators or admins can update stories
+      allow update: if isAuthenticated() && isOwner(resource.data.createdBy);
+      
+      // Only story creators or admins can delete stories
+      allow delete: if isAuthenticated() && isOwner(resource.data.createdBy);
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can only read their own notifications
+      allow read, write: if isOwner(resource.data.uid);
+      
+      // System can create notifications for any user
+      allow create: if isAuthenticated() && resource.data.uid != null;
+    }
+    
+    // Analytics collection
+    match /analytics/{analyticsId} {
+      // Users can only read their own analytics
+      allow read: if isOwner(resource.data.uid);
+      
+      // Users can create their own analytics entries
+      allow create: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

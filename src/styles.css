@@ -1,26 +1,31 @@
 :root {
-  --font-body: "Manrope", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
 
-  /* Traditional palette */
-  --maroon: #800020;
+  /* Traditional wedding palette */
+  --maroon: #6f0d1b;
+  --maroon-deep: #430810;
   --gold: #c5a46d;
+  --gold-deep: #a8844b;
+  --blush: #fbf7f1; /* warm ivory */
   --cream: #f8f5f0;
   --beige: #efe6d8;
-  --ink: #2a1f1a;
+  --ink: #241a16;
 
   /* Light theme surfaces */
-  --bg: var(--cream);
+  --bg: var(--blush);
   --text: var(--ink);
   --muted: rgba(42, 31, 26, 0.75);
   --border: rgba(42, 31, 26, 0.16);
-  --shadow: 0 12px 28px rgba(42, 31, 26, 0.10);
+  --shadow: 0 14px 34px rgba(42, 31, 26, 0.12);
 
-  --panel: rgba(255, 255, 255, 0.86);
-  --panel-strong: rgba(255, 255, 255, 0.94);
+  --panel: rgba(255, 255, 255, 0.90);
+  --panel-strong: rgba(255, 255, 255, 0.96);
 
   --gold-soft: rgba(197, 164, 109, 0.22);
-  --maroon-soft: rgba(128, 0, 32, 0.10);
+  --maroon-soft: rgba(111, 13, 27, 0.10);
+  --accent: linear-gradient(135deg, rgba(111, 13, 27, 0.80), rgba(197, 164, 109, 0.92));
+  --accent-soft: linear-gradient(135deg, rgba(111, 13, 27, 0.16), rgba(197, 164, 109, 0.18));
 
   --radius-lg: 18px;
   --radius-md: 14px;
@@ -30,7 +35,7 @@
 }
 
 [data-theme="dark"] {
-  --bg: #141110;
+  --bg: #120e0d;
   --text: #f3efe7;
   --muted: rgba(243, 239, 231, 0.74);
   --border: rgba(243, 239, 231, 0.16);
@@ -40,7 +45,7 @@
   --panel-strong: rgba(26, 22, 20, 0.97);
 
   --gold-soft: rgba(197, 164, 109, 0.18);
-  --maroon-soft: rgba(128, 0, 32, 0.20);
+  --maroon-soft: rgba(111, 13, 27, 0.22);
 }
 
 * {
@@ -81,10 +86,11 @@ input {
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(900px 420px at 15% 0%, rgba(197, 164, 109, 0.14), transparent 60%),
-    radial-gradient(700px 420px at 85% 10%, rgba(128, 0, 32, 0.10), transparent 62%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 40%),
-    linear-gradient(0deg, rgba(239, 230, 216, 0.6), rgba(239, 230, 216, 0.35));
+    radial-gradient(980px 560px at 12% 0%, rgba(197, 164, 109, 0.16), transparent 62%),
+    radial-gradient(920px 640px at 88% 12%, rgba(111, 13, 27, 0.10), transparent 66%),
+    radial-gradient(760px 560px at 58% 32%, rgba(67, 8, 16, 0.06), transparent 66%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), transparent 44%),
+    linear-gradient(0deg, rgba(239, 230, 216, 0.72), rgba(239, 230, 216, 0.40));
 }
 
 .bgLayer::after {
@@ -93,8 +99,8 @@ input {
   inset: 0;
   /* Fine motif texture */
   background-image:
-    radial-gradient(circle at 10px 10px, rgba(197, 164, 109, 0.18) 1px, transparent 1.2px),
-    radial-gradient(circle at 30px 30px, rgba(128, 0, 32, 0.10) 1px, transparent 1.2px);
+    radial-gradient(circle at 10px 10px, rgba(197, 164, 109, 0.14) 1px, transparent 1.2px),
+    radial-gradient(circle at 28px 28px, rgba(111, 13, 27, 0.08) 1px, transparent 1.2px);
   background-size: 40px 40px, 56px 56px;
   opacity: 0.35;
 }
@@ -133,8 +139,8 @@ input {
 }
 
 .titleBrand .wordmark {
-  font-style: italic;
-  font-weight: 600;
+  font-style: normal;
+  font-weight: 700;
   font-size: 22px;
   line-height: 1;
 }
@@ -225,11 +231,11 @@ input {
   outline-offset: 2px;
 }
 .fmsBtnPrimary {
-  background: linear-gradient(180deg, rgba(197, 164, 109, 0.30), rgba(197, 164, 109, 0.18));
+  background: var(--accent-soft);
   border-color: rgba(197, 164, 109, 0.55);
 }
 .fmsBtnPrimary:hover {
-  background: linear-gradient(180deg, rgba(197, 164, 109, 0.34), rgba(197, 164, 109, 0.22));
+  background: linear-gradient(135deg, rgba(111, 13, 27, 0.18), rgba(197, 164, 109, 0.20));
 }
 .fmsBtnSecondary {
   background: var(--panel-strong);
@@ -260,7 +266,7 @@ input {
 /* Header / Navbar */
 .fmsHeader {
   background: var(--panel-strong);
-  border-bottom: 2px solid rgba(197, 164, 109, 0.55);
+  border-bottom: 2px solid rgba(197, 164, 109, 0.42);
 }
 .fmsHeaderInner {
   height: 64px;
@@ -299,8 +305,8 @@ input {
   border-color: rgba(197, 164, 109, 0.22);
 }
 .fmsNavLinkActive {
-  background: rgba(128, 0, 32, 0.10);
-  border-color: rgba(128, 0, 32, 0.22);
+  background: rgba(197, 164, 109, 0.12);
+  border-color: rgba(197, 164, 109, 0.22);
   opacity: 1;
 }
 .fmsHeaderActions {
@@ -326,10 +332,10 @@ input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(197, 164, 109, 0.28), rgba(128, 0, 32, 0.12));
+  background: linear-gradient(135deg, rgba(197, 164, 109, 0.28), rgba(111, 13, 27, 0.14));
   border: 1px solid rgba(197, 164, 109, 0.35);
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 600;
 }
 .fmsProfileMenu {
@@ -400,8 +406,8 @@ input {
   border-color: rgba(197, 164, 109, 0.45);
 }
 .fmsBadgeNew {
-  background: rgba(128, 0, 32, 0.12);
-  border-color: rgba(128, 0, 32, 0.35);
+  background: rgba(111, 13, 27, 0.12);
+  border-color: rgba(111, 13, 27, 0.35);
 }
 
 /* Key/value blocks used in profile sections */
@@ -425,7 +431,7 @@ input {
 .fmsProgressFill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(128, 0, 32, 0.65), rgba(197, 164, 109, 0.80));
+  background: linear-gradient(90deg, rgba(111, 13, 27, 0.74), rgba(197, 164, 109, 0.82));
 }
 
 @media (max-width: 980px) {

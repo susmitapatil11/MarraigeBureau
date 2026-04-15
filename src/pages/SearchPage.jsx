@@ -1,11 +1,108 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { ProfileCard } from "../ui/ProfileCard.jsx";
 import { ProfileModal } from "../ui/ProfileModal.jsx";
-import { profiles } from "../ui/mockData.js";
+import { searchService, userService } from "../services/index.js";
+import { auth } from "../firebase.js";
 
 export default function SearchPage() {
   const [selected, setSelected] = useState(null);
-  const list = useMemo(() => profiles, []);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [filters, setFilters] = useState({
+    lookingFor: "",
+    ageMin: "",
+    ageMax: "",
+    religion: "",
+    caste: "",
+    education: "",
+    profession: "",
+    location: "",
+    income: "",
+    lifestyle: ""
+  });
+
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    setLoading(true);
+    try {
+      if (user) {
+        // Get user's looking for preference
+        const userProfile = await userService.getProfile(user.uid);
+        if (userProfile.success) {
+          setFilters(prev => ({
+            ...prev,
+            lookingFor: userProfile.data.lookingFor === "Bride" ? "Groom" : "Bride"
+          }));
+        }
+      }
+
+      // Load initial results
+      await performSearch();
+    } catch (error) {
+      setError("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const performSearch = async () => {
+    setLoading(true);
+    setError("");
+    
+    try {
+      const searchFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== "")
+      );
+      
+      const result = await searchService.advancedSearch(searchFilters);
+      
+      if (result.success) {
+        setSearchResults(result.data);
+      } else {
+        setError(result.error || "Search failed");
+        setSearchResults([]);
+      }
+    } catch (error) {
+      setError(error.message || "Search failed");
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateFilter = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleSearch = () => {
+    performSearch();
+  };
+
+  // Transform Firestore data to ProfileCard format
+  const transformProfileData = (user) => {
+    return {
+      id: user.uid,
+      name: user.fullName,
+      age: user.age,
+      location: user.location,
+      title: user.profession,
+      match: Math.floor(Math.random() * 15) + 85, // Mock match score
+      badges: user.isVerified ? ["Verified"] : [],
+      about: user.aboutMe || "",
+      image: user.photoUrl || "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=70"
+    };
+  };
+
+  const list = searchResults.map(transformProfileData);
 
   return (
     <div className="section">
@@ -17,6 +114,12 @@ export default function SearchPage() {
           Profiles are presented in a simple list focused on essentials.
         </div>
       </div>
+
+      {error && (
+        <div className="muted" style={{ color: "var(--danger, #ff5a6a)", padding: 12, borderRadius: 8, marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
 
       <div
         className="grid"
@@ -33,73 +136,134 @@ export default function SearchPage() {
 
           <div className="stack" style={{ gap: 10 }}>
             <label className="stack" style={{ gap: 6 }}>
-              <span className="kicker">Age</span>
-              <select className="fmsField">
-                <option>Any</option>
-                <option>21–25</option>
-                <option>26–30</option>
-                <option>31–35</option>
-                <option>36–40</option>
-              </select>
+              <span className="kicker">Age Range</span>
+              <div className="flex gap-4">
+                <input 
+                  className="fmsField" 
+                  type="number" 
+                  placeholder="Min" 
+                  value={filters.ageMin}
+                  onChange={(e) => updateFilter('ageMin', e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <input 
+                  className="fmsField" 
+                  type="number" 
+                  placeholder="Max" 
+                  value={filters.ageMax}
+                  onChange={(e) => updateFilter('ageMax', e.target.value)}
+                  style={{ flex: 1 }}
+                />
+              </div>
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Religion</span>
-              <select className="fmsField">
-                <option>Any</option>
+              <select 
+                className="fmsField" 
+                value={filters.religion}
+                onChange={(e) => updateFilter('religion', e.target.value)}
+              >
+                <option value="">Any</option>
                 <option>Hindu</option>
                 <option>Muslim</option>
                 <option>Christian</option>
                 <option>Sikh</option>
                 <option>Jain</option>
+                <option>Buddhist</option>
+                <option>Other</option>
               </select>
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Caste</span>
-              <input className="fmsField" placeholder="Optional" />
+              <input 
+                className="fmsField" 
+                placeholder="Optional" 
+                value={filters.caste}
+                onChange={(e) => updateFilter('caste', e.target.value)}
+              />
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Education</span>
-              <select className="fmsField">
-                <option>Any</option>
+              <select 
+                className="fmsField"
+                value={filters.education}
+                onChange={(e) => updateFilter('education', e.target.value)}
+              >
+                <option value="">Any</option>
+                <option>High School</option>
                 <option>Graduate</option>
                 <option>Post Graduate</option>
                 <option>Doctorate</option>
+                <option>Professional</option>
               </select>
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Profession</span>
-              <input className="fmsField" placeholder="e.g., Engineer, Doctor" />
+              <input 
+                className="fmsField" 
+                placeholder="e.g., Engineer, Doctor" 
+                value={filters.profession}
+                onChange={(e) => updateFilter('profession', e.target.value)}
+              />
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Location</span>
-              <input className="fmsField" placeholder="City / State" />
+              <input 
+                className="fmsField" 
+                placeholder="City / State" 
+                value={filters.location}
+                onChange={(e) => updateFilter('location', e.target.value)}
+              />
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Income</span>
-              <select className="fmsField">
-                <option>Any</option>
+              <select 
+                className="fmsField"
+                value={filters.income}
+                onChange={(e) => updateFilter('income', e.target.value)}
+              >
+                <option value="">Any</option>
                 <option>Below 5 LPA</option>
-                <option>5–10 LPA</option>
-                <option>10–20 LPA</option>
+                <option>5-10 LPA</option>
+                <option>10-20 LPA</option>
                 <option>20+ LPA</option>
               </select>
             </label>
 
             <label className="stack" style={{ gap: 6 }}>
               <span className="kicker">Lifestyle</span>
-              <select className="fmsField">
-                <option>Any</option>
+              <select 
+                className="fmsField"
+                value={filters.lifestyle}
+                onChange={(e) => updateFilter('lifestyle', e.target.value)}
+              >
+                <option value="">Any</option>
                 <option>Family-first</option>
                 <option>Traditional</option>
                 <option>Balanced</option>
+                <option>Modern</option>
               </select>
             </label>
+
+            <button 
+              className="pill" 
+              onClick={handleSearch}
+              disabled={loading}
+              style={{ 
+                padding: "12px", 
+                border: "1px solid var(--border)", 
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
           </div>
         </aside>
 
