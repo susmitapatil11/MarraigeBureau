@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { IconButton } from "./Button.jsx";
 import { auth } from "../firebase.js";
 import { signOut } from "firebase/auth";
-import { userService } from "../services/index.js";
+import { userService, notificationService } from "../services/index.js";
 
 function useScrolled(threshold = 12) {
   const [scrolled, setScrolled] = useState(false);
@@ -72,9 +72,7 @@ export function TopNav({ theme, onToggleTheme }) {
           <IconButton aria-label="Search" onClick={() => navigate("/search")}>
             <Search size={18} />
           </IconButton>
-          <IconButton aria-label="Notifications">
-            <Bell size={18} />
-          </IconButton>
+          <NotificationsMenu />
           <IconButton
             aria-label="Toggle theme"
             onClick={onToggleTheme}
@@ -192,3 +190,92 @@ function ProfileMenu() {
   );
 }
 
+function NotificationsMenu() {
+  const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unread, setUnread] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      if (auth.currentUser) {
+        const res = await notificationService.getUserNotifications(auth.currentUser.uid, 5);
+        if (res.success) {
+          setNotifications(res.data);
+          setUnread(res.data.filter(n => !n.read).length);
+        }
+      }
+    };
+    if (open) fetchNotifs();
+    
+    // Also fetch initially to get unread badge
+    fetchNotifs();
+  }, [open, auth.currentUser]);
+
+  useEffect(() => {
+    const onDown = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onDown);
+    return () => window.removeEventListener("keydown", onDown);
+  }, []);
+
+  const handleNotificationClick = async (notif) => {
+    if (!notif.read) {
+      await notificationService.markAsRead(notif.id);
+    }
+    setOpen(false);
+    if (notif.type === "match" && notif.data?.matchId) {
+      navigate(/compatibility-report/);
+    } else {
+      navigate("/tests"); // fallback
+    }
+  };
+
+  return (
+    <div className="relative">
+      <IconButton aria-label="Notifications" onClick={() => setOpen(!open)}>
+        <Bell size={18} />
+        {unread > 0 && (
+          <div style={{ position: "absolute", top: 4, right: 6, width: 8, height: 8, background: "var(--danger, #ff5a6a)", borderRadius: "50%" }}></div>
+        )}
+      </IconButton>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="fmsProfileMenu"
+            style={{ right: -40, width: 320 }}
+          >
+            <div className="glass" style={{ borderRadius: 14, padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className="kicker" style={{ paddingLeft: 6 }}>Notifications</div>
+              {notifications.length === 0 ? (
+                <div className="muted p-2" style={{ fontSize: 13 }}>No notifications yet.</div>
+              ) : (
+                notifications.map(n => (
+                  <div 
+                    key={n.id} 
+                    className="pill pointer" 
+                    style={{ 
+                      padding: "12px", 
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: n.read ? "transparent" : "rgba(198,163,91,0.08)"
+                    }}
+                    onClick={() => handleNotificationClick(n)}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{n.title}</div>
+                    <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>{n.message}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
