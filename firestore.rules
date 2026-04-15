@@ -41,10 +41,8 @@ service cloud.firestore {
       // Users can write their own profile with validation
       allow write: if isOwner(userId) && isValidUserData();
       
-      // Public profile access (limited fields)
-      allow read: if isAuthenticated() && 
-        request.resource.data.keys().hasAll(['uid', 'fullName', 'age', 'location', 'profession', 'photoUrl']) &&
-        request.resource.data.keys().size() <= 6;
+      // Public profile access for Featured Profiles
+      allow read: if true;
     }
     
     // Images collection
