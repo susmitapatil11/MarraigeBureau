@@ -13,6 +13,7 @@ export default function HomePage() {
   const [selected, setSelected] = useState(null);
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
   const user = auth.currentUser;
 
   useEffect(() => {
@@ -35,9 +36,14 @@ export default function HomePage() {
               image: u.photoUrl || "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=70"
             }));
           setFeatured(formatted);
+          setErrorMsg("");
+        } else {
+          console.error("Failed to load featured profiles:", result.error);
+          setErrorMsg(result.error);
         }
       } catch (e) {
-        console.error("Failed to load featured profiles", e);
+        console.error("Failed to execute search", e);
+        setErrorMsg(e.message);
       } finally {
         setLoading(false);
       }
@@ -82,6 +88,10 @@ export default function HomePage() {
           {loading ? (
             <div className="muted" style={{ padding: "40px", gridColumn: "1 / -1", textAlign: "center" }}>
               Loading featured profiles...
+            </div>
+          ) : errorMsg ? (
+            <div className="muted" style={{ padding: "40px", gridColumn: "1 / -1", textAlign: "center", color: 'red' }}>
+              Database Error: {errorMsg}. (Check your Firebase Security Rules!)
             </div>
           ) : featured.length === 0 ? (
             <div className="muted" style={{ padding: "40px", gridColumn: "1 / -1", textAlign: "center" }}>

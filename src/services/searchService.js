@@ -82,7 +82,7 @@ export const searchService = {
   // Advanced search with multiple filters
   async advancedSearch(filters = {}) {
     try {
-      let constraints = [where("showProfile", "==", true)];
+      let constraints = [];
 
       // Add filters
       if (filters.lookingFor) {
