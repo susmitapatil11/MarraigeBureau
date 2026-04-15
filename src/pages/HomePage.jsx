@@ -55,17 +55,19 @@ export default function HomePage() {
   const handleSendInterest = async (toUserId) => {
     if (!user) {
       alert("Please login to send interest");
-      return;
+      return null;
     }
     try {
       const result = await connectionService.sendRequest(user.uid, toUserId, 85);
       if (result.success) {
-        alert("Interest sent successfully!");
+        return result.data.id;
       } else {
         alert(result.error);
+        return null;
       }
     } catch (error) {
       alert("Failed to send interest");
+      return null;
     }
   };
 

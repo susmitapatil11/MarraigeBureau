@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { Button } from "../components/Button.jsx";
@@ -55,12 +56,13 @@ export default function RequestsPage() {
     [tab, receivedRequests, sentRequests]
   );
 
+  const navigate = useNavigate();
+
   const handleAcceptRequest = async (connectionId) => {
     try {
       const result = await connectionService.acceptRequest(connectionId);
       if (result.success) {
-        // Reload requests
-        await loadRequests();
+        navigate(`/test/${connectionId}`);
       } else {
         setError(result.error || "Failed to accept request");
       }

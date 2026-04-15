@@ -1,10 +1,27 @@
-import React from "react";
-import { Heart, Sparkles } from "lucide-react";
+import React, { useState } from "react";
+import { Heart, Sparkles, ClipboardList } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "../components/Button.jsx";
 import { Glass } from "../components/Glass.jsx";
+import { useNavigate } from "react-router-dom";
 
 export function ProfileCard({ profile, onOpen, showInterest = false, onSendInterest }) {
+  const navigate = useNavigate();
+  const [testConnectionId, setTestConnectionId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleInterestClick = async () => {
+    if (!onSendInterest) return;
+    setLoading(true);
+    try {
+      const connId = await onSendInterest(profile.id);
+      if (connId) {
+        setTestConnectionId(connId);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <motion.div transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}>
       <Glass className="p-4" style={{ borderRadius: 22, overflow: "hidden" }}>
@@ -100,10 +117,17 @@ export function ProfileCard({ profile, onOpen, showInterest = false, onSendInter
               View profile
             </Button>
             {showInterest ? (
-              <Button variant="primary" onClick={() => onSendInterest && onSendInterest(profile.id)}>
-                <Heart size={18} />
-                Send Interest
-              </Button>
+              testConnectionId ? (
+                <Button variant="primary" onClick={() => navigate(`/test/${testConnectionId}`)}>
+                  <ClipboardList size={18} />
+                  Give Test
+                </Button>
+              ) : (
+                <Button variant="primary" onClick={handleInterestClick} disabled={loading}>
+                  <Heart size={18} />
+                  {loading ? "Sending..." : "Send Interest"}
+                </Button>
+              )
             ) : null}
           </div>
         </div>

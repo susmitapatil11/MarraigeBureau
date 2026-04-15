@@ -12,6 +12,7 @@ import ChatPage from "./pages/ChatPage.jsx";
 import StoriesPage from "./pages/StoriesPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import TestsPage from "./pages/TestsPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
@@ -56,7 +57,8 @@ export default function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/compatibility-test/:matchId" element={<CompatibilityTestPage />} />
+              <Route path="/tests" element={<TestsPage />} />
+              <Route path="/test/:matchId" element={<CompatibilityTestPage />} />
               <Route path="/compatibility-report/:matchId" element={<CompatibilityReportPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

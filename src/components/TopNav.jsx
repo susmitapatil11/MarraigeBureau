@@ -53,6 +53,7 @@ export function TopNav({ theme, onToggleTheme }) {
             ["Recommendations", "/recommendations"],
             ["Requests", "/requests"],
             ["Chat", "/chat"],
+            ["Tests", "/tests"],
             ["Success Stories", "/stories"]
           ].map(([label, to]) => (
             <NavLink

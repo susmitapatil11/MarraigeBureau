@@ -1,6 +1,7 @@
 import { doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { COMPATIBILITY_QUESTIONS, COMPATIBILITY_SECTIONS, hasSimilarAnswer } from "../lib/compatibilityQuestions.js";
+import { notificationService } from "./notificationService.js";
 
 export const compatibilityService = {
   // Save user's answers to the test
@@ -137,6 +138,25 @@ export const compatibilityService = {
       
       const reportRef = doc(db, "compatibilityReports", matchId);
       await setDoc(reportRef, reportData);
+      
+      try {
+        await notificationService.createNotification(
+          userId1, 
+          "match", 
+          "Compatibility Report Ready!", 
+          `Your compatibility report with a recent connection is generated. Score: ${overallPercentage}%`, 
+          { matchId }
+        );
+        await notificationService.createNotification(
+          userId2, 
+          "match", 
+          "Compatibility Report Ready!", 
+          `Your compatibility report with a recent connection is generated. Score: ${overallPercentage}%`, 
+          { matchId }
+        );
+      } catch (e) {
+        console.error("Failed to generate notifications", e);
+      }
       
       return { success: true, status: "report_generated", data: reportData };
     } catch (error) {
