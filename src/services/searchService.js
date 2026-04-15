@@ -144,8 +144,6 @@ export const searchService = {
       // Add ordering
       if (hasAgeInequality) {
         constraints.push(orderBy("age"));
-      } else {
-        constraints.push(orderBy("lastActive", "desc"));
       }
 
       // Add limit

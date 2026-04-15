@@ -21,6 +21,7 @@ function useScrolled(threshold = 12) {
 export function TopNav({ theme, onToggleTheme }) {
   const scrolled = useScrolled(14);
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = useMemo(() => location.pathname === "/", [location.pathname]);
 
   return (
@@ -67,7 +68,7 @@ export function TopNav({ theme, onToggleTheme }) {
         </nav>
 
         <div className="fmsHeaderActions">
-          <IconButton aria-label="Search">
+          <IconButton aria-label="Search" onClick={() => navigate("/search")}>
             <Search size={18} />
           </IconButton>
           <IconButton aria-label="Notifications">

@@ -109,7 +109,7 @@ export const userService = {
       }
       
       // Add ordering and limit
-      q = query(q, orderBy("lastActive", "desc"), limit(50));
+      q = query(q, limit(50));
       
       const querySnapshot = await getDocs(q);
       const users = querySnapshot.docs.map(doc => ({
