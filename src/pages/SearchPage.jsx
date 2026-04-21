@@ -1,8 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { ProfileCard } from "../ui/ProfileCard.jsx";
-import { ProfileModal } from "../ui/ProfileModal.jsx";
-import { searchService, userService, connectionService } from "../services/index.js";
-import { auth } from "../firebase.js";
+import { motion } from "framer-motion";
 
 export default function SearchPage() {
   const [selected, setSelected] = useState(null);
@@ -127,7 +123,13 @@ export default function SearchPage() {
   const list = searchResults.map(transformProfileData);
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 16 }}>
         <div className="kicker">Search & Match</div>
         <h2 className="h2">Filter profiles with clarity</h2>
@@ -315,7 +317,7 @@ export default function SearchPage() {
       </div>
 
       <ProfileModal profile={selected} onClose={() => setSelected(null)} />
-    </div>
+    </motion.div>
   );
 }
 

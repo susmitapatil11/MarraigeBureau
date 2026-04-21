@@ -76,11 +76,17 @@ export default function RecommendationsPage() {
   };
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 16 }}>
         <div className="kicker">Recommendations</div>
         <div className="flex items-end justify-between gap-12">
-          <h2 className="h2">Suitable matches for your preferences</h2>
+          <h2 className="h2" style={{ background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Matches for your preferences</h2>
           <Button variant="secondary" className="hidden sm:inline-flex">
             <Sparkles size={18} />
             Update preferences
@@ -88,7 +94,7 @@ export default function RecommendationsPage() {
         </div>
       </div>
 
-      <Glass className="p-5" style={{ borderRadius: 22, marginBottom: 18 }}>
+      <div className="glass p-5" style={{ borderRadius: 22, marginBottom: 18, border: '1px solid var(--border-glow)' }}>
         <div className="grid gridCols2">
           {[
             ["Age", "24–36"],
@@ -101,16 +107,16 @@ export default function RecommendationsPage() {
               className="pill"
               style={{
                 padding: "10px 14px",
-                border: "1px solid var(--border)",
-                background: "rgba(255,255,255,0.35)"
+                border: "1px solid var(--glass-border)",
+                background: "rgba(255,255,255,0.02)"
               }}
             >
-              <div className="kicker">{k}</div>
+              <div className="kicker" style={{ color: 'var(--accent-rose)' }}>{k}</div>
               <div style={{ fontWeight: 700, letterSpacing: 0.2 }}>{v}</div>
             </div>
           ))}
         </div>
-      </Glass>
+      </div>
 
       <div className="grid gridCols3">
         {loading ? (
@@ -136,7 +142,7 @@ export default function RecommendationsPage() {
       </div>
 
       <ProfileModal profile={selected} onClose={() => setSelected(null)} />
-    </div>
+    </motion.div>
   );
 }
 

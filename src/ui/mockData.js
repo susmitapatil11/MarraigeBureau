@@ -155,6 +155,7 @@ export const stories = [
     id: "st1",
     couple: "Riya & Kunal",
     location: "Pune",
+    image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=400&q=70",
     preview:
       "Two quiet people, one beautiful conversation. Their first chat felt like home — calm, kind, and honest.",
     full:
@@ -164,6 +165,7 @@ export const stories = [
     id: "st2",
     couple: "Anika & Dev",
     location: "Bengaluru",
+    image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=70",
     preview:
       "A shared love for art and family brought them together. The match score was high, but the trust was higher.",
     full:
@@ -173,6 +175,7 @@ export const stories = [
     id: "st3",
     couple: "Sana & Arnav",
     location: "Delhi",
+    image: "https://images.unsplash.com/photo-1522673607200-1648832cee98?auto=format&fit=crop&w=400&q=70",
     preview:
       "Their story began with a simple question: “What do you want to build together?” The answer was a life of calm.",
     full:

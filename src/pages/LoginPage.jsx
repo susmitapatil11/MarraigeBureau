@@ -3,10 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/Button.jsx";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.js";
+import { motion } from "framer-motion";
 
 function AuthShell({ title, subtitle, children }) {
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div
         className="glass"
         style={{
@@ -27,7 +34,7 @@ function AuthShell({ title, subtitle, children }) {
           {children}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

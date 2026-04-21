@@ -15,11 +15,13 @@ export function Tabs({ items, value, onChange }) {
               style={{
                 padding: "10px 14px",
                 border: "1px solid rgba(255,255,255,0.16)",
-                background: active ? "var(--gold-soft)" : "rgba(255,255,255,0.06)",
-                color: "var(--text)",
+                background: active ? "var(--gradient-primary)" : "rgba(255,255,255,0.06)",
+                color: active ? "#fff" : "var(--text)",
                 cursor: "pointer",
-                transition: "background 200ms var(--ease-out), opacity 200ms var(--ease-out)",
-                opacity: active ? 1 : 0.88
+                transition: "all 300ms var(--ease-out)",
+                opacity: active ? 1 : 0.88,
+                boxShadow: active ? "0 4px 15px rgba(199, 125, 255, 0.2)" : "none",
+                borderColor: active ? "var(--accent-rose)" : "var(--glass-border)"
               }}
             >
               <span style={{ fontSize: 13, letterSpacing: 0.2, fontWeight: 800 }}>

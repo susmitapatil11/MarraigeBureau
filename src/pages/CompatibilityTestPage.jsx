@@ -99,22 +99,31 @@ export default function CompatibilityTestPage() {
   }
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 20 }}>
         <div className="kicker">Compatibility Test</div>
-        <h2 className="h2">{COMPATIBILITY_SECTIONS[currentSection]}</h2>
+        <h2 className="h2" style={{ background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{COMPATIBILITY_SECTIONS[currentSection]}</h2>
         <div className="muted" style={{ fontSize: 13 }}>
           Section {currentSection + 1} of {COMPATIBILITY_SECTIONS.length}
         </div>
       </div>
 
-      <div style={{ height: 6, width: "100%", background: "rgba(255,255,255,0.1)", borderRadius: 10, overflow: "hidden", marginBottom: 24 }}>
-        <div style={{ 
-          height: "100%", 
-          background: "var(--gold-soft)", 
-          width: `${((currentSection + 1) / COMPATIBILITY_SECTIONS.length) * 100}%`,
-          transition: "width 0.3s ease" 
-        }} />
+      <div style={{ height: 6, width: "100%", background: "rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", marginBottom: 24, border: '1px solid var(--glass-border)' }}>
+        <motion.div 
+          style={{ 
+            height: "100%", 
+            background: "var(--gradient-primary)", 
+            width: `${((currentSection + 1) / COMPATIBILITY_SECTIONS.length) * 100}%`
+          }} 
+          animate={{ width: `${((currentSection + 1) / COMPATIBILITY_SECTIONS.length) * 100}%` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
       </div>
 
       {error && (
@@ -135,11 +144,12 @@ export default function CompatibilityTestPage() {
                     key={opt}
                     className="pill flex items-center gap-12"
                     style={{
-                      padding: "12px 16px",
+                      padding: "14px 18px",
                       cursor: "pointer",
-                      border: answers[q.id] === opt ? "1px solid var(--gold-soft)" : "1px solid rgba(255,255,255,0.1)",
-                      background: answers[q.id] === opt ? "rgba(198,163,91,0.1)" : "rgba(255,255,255,0.03)",
-                      transition: "all 0.2s"
+                      border: answers[q.id] === opt ? "1px solid var(--accent-rose)" : "1px solid var(--glass-border)",
+                      background: answers[q.id] === opt ? "rgba(232, 160, 191, 0.1)" : "rgba(255,255,255,0.02)",
+                      transition: "all 0.2s",
+                      boxShadow: answers[q.id] === opt ? "0 0 15px rgba(232, 160, 191, 0.15)" : "none"
                     }}
                   >
                     <input 
@@ -198,6 +208,6 @@ export default function CompatibilityTestPage() {
         )}
       </div>
 
-    </div>
+    </motion.div>
   );
 }

@@ -99,7 +99,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div
         className="glass"
         style={{
@@ -238,7 +244,7 @@ export default function RegisterPage() {
           </Link>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

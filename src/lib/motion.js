@@ -1,13 +1,11 @@
 export const pageVariants = {
-  initial: { opacity: 0, y: 10, filter: "blur(6px)" },
-  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -8, filter: "blur(6px)" }
+  initial: { opacity: 0, y: 18 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -18 }
 };
 
 export const pageTransition = {
-  type: "spring",
-  stiffness: 110,
-  damping: 18,
-  mass: 0.7
+  duration: 0.35,
+  ease: [0.16, 1, 0.3, 1]
 };
 

@@ -18,43 +18,37 @@ function useScrolled(threshold = 12) {
   return scrolled;
 }
 
-export function TopNav({ theme, onToggleTheme }) {
+export function TopNav() {
   const scrolled = useScrolled(14);
   const location = useLocation();
   const navigate = useNavigate();
-  const isHome = useMemo(() => location.pathname === "/", [location.pathname]);
 
   return (
     <header
-      className="fmsHeader"
+      className={`fmsHeader ${scrolled ? 'scrolled' : ''}`}
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        boxShadow: scrolled ? "0 10px 26px rgba(42, 31, 26, 0.10)" : "none"
+        zIndex: 1000,
       }}
     >
       <div className="container fmsHeaderInner">
         <div className="fmsBrand">
-          <div className="titleBrand" aria-label="Find My Self">
-            <span className="wordmark">Find My Self</span>
-            <span className="goldDot" aria-hidden="true" />
-          </div>
-          <div className="muted fmsBrandTagline">
-            trusted matrimony service
+          <Link to="/" className="titleBrand" aria-label="FindMySelf" style={{ textDecoration: 'none' }}>
+            <span className="wordmark" style={{ fontSize: 26, letterSpacing: '-0.03em', fontWeight: 900 }}>FindMySelf</span>
+            <div className="heartDot" aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: '#fff', boxShadow: '0 0 15px rgba(255,255,255,0.8)' }} />
+          </Link>
+          <div className="fmsBrandTagline" style={{ fontSize: 10, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>
+            PREMIUM MATRIMONY
           </div>
         </div>
 
         <nav className="fmsNav md:flex" aria-label="Primary">
           {[
             ["Home", "/"],
-            ["Recommendations", "/recommendations"],
+            ["Explore", "/recommendations"],
             ["Requests", "/requests"],
             ["Chat", "/chat"],
             ["Tests", "/tests"],
-            ["Success Stories", "/stories"]
+            ["Stories", "/stories"]
           ].map(([label, to]) => (
             <NavLink
               key={to}
@@ -69,18 +63,11 @@ export function TopNav({ theme, onToggleTheme }) {
         </nav>
 
         <div className="fmsHeaderActions">
-          <IconButton aria-label="Search" onClick={() => navigate("/search")}>
-            <Search size={18} />
+          <IconButton aria-label="Search" onClick={() => navigate("/search")} className="fmsIconBtn">
+            <Search size={20} />
           </IconButton>
           <NotificationsMenu />
-          <IconButton
-            aria-label="Toggle theme"
-            onClick={onToggleTheme}
-            title={theme === "dark" ? "Switch to light" : "Switch to dark"}
-          >
-            <SunMoon size={18} />
-          </IconButton>
-
+          
           <ProfileMenu />
         </div>
       </div>
@@ -207,8 +194,6 @@ function NotificationsMenu() {
       }
     };
     if (open) fetchNotifs();
-    
-    // Also fetch initially to get unread badge
     fetchNotifs();
   }, [open, auth.currentUser]);
 
@@ -226,9 +211,9 @@ function NotificationsMenu() {
     }
     setOpen(false);
     if (notif.type === "match" && notif.data?.matchId) {
-      navigate(/compatibility-report/);
+      navigate(`/compatibility-report/${notif.data.matchId}`);
     } else {
-      navigate("/tests"); // fallback
+      navigate("/tests");
     }
   };
 
@@ -262,8 +247,9 @@ function NotificationsMenu() {
                     className="pill pointer" 
                     style={{ 
                       padding: "12px", 
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      background: n.read ? "transparent" : "rgba(198,163,91,0.08)"
+                      border: "1px solid var(--glass-border)",
+                      background: n.read ? "transparent" : "rgba(16, 185, 129, 0.08)",
+                      transition: "all 0.2s"
                     }}
                     onClick={() => handleNotificationClick(n)}
                   >

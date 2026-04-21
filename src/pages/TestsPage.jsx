@@ -4,6 +4,7 @@ import { connectionService, compatibilityService, userService } from "../service
 import { useNavigate } from "react-router-dom";
 import { Glass } from "../components/Glass.jsx";
 import { Button } from "../components/Button.jsx";
+import { motion } from "framer-motion";
 
 export default function TestsPage() {
   const [connections, setConnections] = useState([]);
@@ -56,14 +57,20 @@ export default function TestsPage() {
     loadTests();
   }, [user]);
 
-  if (!user) return <div className="section muted">Please login to view tests.</div>;
-  if (loading) return <div className="section muted" style={{ marginTop: 24, padding: 40, textAlign: "center" }}>Loading your compatibility tests...</div>;
+  if (!user) return <motion.div className="section muted" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Please login to view tests.</motion.div>;
+  if (loading) return <motion.div className="section muted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 24, padding: 40, textAlign: "center" }}>Loading your compatibility tests...</motion.div>;
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 24, marginTop: 24 }}>
         <div className="kicker">Compatibility Tests</div>
-        <h2 className="h2">Manage your compatibility tests</h2>
+        <h2 className="h2" style={{ background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Manage your compatibility tests</h2>
       </div>
 
       <div className="grid">
@@ -102,6 +109,6 @@ export default function TestsPage() {
           ))
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

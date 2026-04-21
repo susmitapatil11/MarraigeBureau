@@ -95,10 +95,16 @@ export default function CompatibilityReportPage() {
   else if (overall < 80) color = "var(--gold-soft)";
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 20, textAlign: "center" }}>
         <div className="kicker">Analysis Complete</div>
-        <h2 className="h2">Compatibility Report</h2>
+        <h2 className="h2" style={{ background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Compatibility Report</h2>
         <div className="muted" style={{ fontSize: 13 }}>
           Based on scientifically aligned psychological metrics
         </div>
@@ -108,20 +114,33 @@ export default function CompatibilityReportPage() {
         <div className="kicker" style={{ marginBottom: 8 }}>Overall Match</div>
         
         <div style={{ position: "relative", width: 140, height: 140, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-          {/* Simple circular representation */}
           <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: "rotate(-90deg)", position: "absolute", top: 0, left: 0 }}>
-            <circle cx="70" cy="70" r="64" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-            <circle 
+            <defs>
+              <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="var(--accent-rose)" />
+                <stop offset="100%" stopColor="var(--accent-violet)" />
+              </linearGradient>
+            </defs>
+            <circle cx="70" cy="70" r="64" fill="none" stroke="var(--glass-border)" strokeWidth="8" />
+            <motion.circle 
               cx="70" cy="70" r="64" fill="none" 
-              stroke={color} 
+              stroke="url(#scoreGradient)" 
               strokeWidth="8" 
-              strokeDasharray={`${(overall / 100) * 402} 402`} 
+              strokeDasharray="402"
+              initial={{ strokeDashoffset: 402 }}
+              animate={{ strokeDashoffset: 402 - (overall / 100) * 402 }}
               strokeLinecap="round" 
-              style={{ transition: "stroke-dasharray 1s ease-out" }}
+              transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
             />
           </svg>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 700, color }}>
-            {overall}%
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 700, color: 'var(--accent-rose)' }}>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              {overall}%
+            </motion.span>
           </div>
         </div>
         
@@ -185,6 +204,6 @@ export default function CompatibilityReportPage() {
           Return to Chat
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }

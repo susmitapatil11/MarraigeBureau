@@ -100,10 +100,16 @@ export default function RequestsPage() {
   };
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 16 }}>
         <div className="kicker">Requests</div>
-        <h2 className="h2">Manage received and sent requests</h2>
+        <h2 className="h2" style={{ background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Manage received and sent requests</h2>
       </div>
 
       {error && (
@@ -215,7 +221,7 @@ export default function RequestsPage() {
           })
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

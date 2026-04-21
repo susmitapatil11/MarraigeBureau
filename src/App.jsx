@@ -20,8 +20,9 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import CompatibilityTestPage from "./pages/CompatibilityTestPage.jsx";
 import CompatibilityReportPage from "./pages/CompatibilityReportPage.jsx";
 
+import ClickEffect from "./components/ClickEffect.jsx";
+
 export default function App() {
-  const theme = useTheme();
   const location = useLocation();
 
   useEffect(() => {
@@ -32,10 +33,10 @@ export default function App() {
     <div className="appRoot">
       <div className="bgLayer" aria-hidden="true" />
 
-      <TopNav theme={theme.theme} onToggleTheme={theme.toggle} />
+      <TopNav />
       <div className="topSpacer" />
 
-      <div className="container">
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
@@ -66,8 +67,8 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      <div style={{ height: 96 }} aria-hidden="true" />
-      <BottomNav />
+      <div style={{ height: 40 }} aria-hidden="true" />
+      <ClickEffect />
     </div>
   );
 }

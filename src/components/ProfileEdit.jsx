@@ -276,12 +276,12 @@ export default function ProfileEdit({ onSave, onCancel }) {
 
       {/* Error/Success Messages */}
       {error && (
-        <div className="muted" style={{ color: "var(--danger, #ff5a6a)", padding: 12, borderRadius: 8 }}>
+        <div className="muted" style={{ color: "var(--accent-rose)", padding: 12, borderRadius: 8, background: "rgba(232, 160, 191, 0.1)" }}>
           {error}
         </div>
       )}
       {success && (
-        <div className="muted" style={{ color: "var(--success, #2ecc71)", padding: 12, borderRadius: 8 }}>
+        <div className="muted" style={{ color: "var(--success)", padding: 12, borderRadius: 8, background: "rgba(46, 204, 113, 0.1)" }}>
           {success}
         </div>
       )}

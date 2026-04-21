@@ -1,9 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { profiles } from "../ui/mockData.js";
+import React, { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Camera, Edit, MapPin, Briefcase, GraduationCap, Github } from "lucide-react";
+import { Button, IconButton } from "../components/Button.jsx";
+import { Glass } from "../components/Glass.jsx";
 import { auth } from "../firebase.js";
-import { userService, imageService } from "../services/index.js";
-import { uploadImageToCloudinary } from "../lib/cloudinary.js";
+import { userService } from "../services/index.js";
 import ProfileEdit from "../components/ProfileEdit.jsx";
+import { useNavigate } from "react-router-dom";
+
+const profiles = [
+  {
+    id: "me",
+    fullName: "Your Name",
+    age: 26,
+    location: "Mumbai, India",
+    profession: "Software Engineer",
+    aboutMe: "Brief description about yourself...",
+    photoUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&h=400&q=80"
+  }
+];
 
 function Section({ title, children }) {
   return (
@@ -26,6 +41,7 @@ function KV({ k, v }) {
 }
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const fallback = profiles[0];
   const [photoUrl, setPhotoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -54,11 +70,7 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    let cancelled = false;
     loadProfile();
-    return () => {
-      cancelled = true;
-    };
   }, [user?.uid]);
 
   const p = useMemo(() => {
@@ -88,29 +100,13 @@ export default function ProfilePage() {
     setSuccess("");
     setUploading(true);
     try {
-      const uploaded = await uploadImageToCloudinary(file, { folder: "marriage-bureau/users" });
-      setPhotoUrl(uploaded.url || "");
-
-      if (user) {
-        // Save image metadata
-        await imageService.saveImage(user.uid, {
-          url: uploaded.url || "",
-          publicId: uploaded.publicId || null,
-          width: uploaded.width || null,
-          height: uploaded.height || null,
-          bytes: uploaded.bytes || null,
-          format: uploaded.format || null,
-          type: "profile"
-        });
-
-        // Update user profile with photo URL
-        await userService.updateProfile(user.uid, {
-          photoUrl: uploaded.url || "",
-          photoPublicId: uploaded.publicId || null
-        });
+      const result = await userService.updateProfilePhoto(user.uid, file);
+      if (result.success) {
+        setPhotoUrl(result.url);
+        setSuccess("Profile photo updated successfully.");
+      } else {
+        setError(result.error || "Upload failed.");
       }
-
-      setSuccess("Profile photo updated successfully.");
     } catch (err) {
       setError(err?.message || "Upload failed.");
     } finally {
@@ -121,8 +117,17 @@ export default function ProfilePage() {
 
   if (isEditing) {
     return (
-      <div className="section">
-        <div className="flex items-center justify-between gap-12" style={{ marginBottom: 16 }}>
+      <motion.div 
+        className="section"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -18 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        <div className="flex items-center gap-12" style={{ marginBottom: 16 }}>
+          <IconButton onClick={() => setIsEditing(false)} aria-label="Back">
+             <ArrowLeft size={20} />
+          </IconButton>
           <div className="stack">
             <div className="kicker">Profile</div>
             <h2 className="h2">Edit Profile</h2>
@@ -131,29 +136,53 @@ export default function ProfilePage() {
         <ProfileEdit 
           onSave={() => {
             setIsEditing(false);
-            // Reload profile data
             loadProfile();
           }}
           onCancel={() => setIsEditing(false)}
         />
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="section">
-      <div className="flex items-center justify-between gap-12" style={{ marginBottom: 16 }}>
-        <div className="stack">
-          <div className="kicker">Profile</div>
-          <h2 className="h2">A structured profile view</h2>
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
+      <div className="flex items-center justify-between gap-12" style={{ marginBottom: 24, padding: '0 4px' }}>
+        <div className="flex items-center gap-16">
+          <IconButton 
+            onClick={() => navigate(-1)} 
+            aria-label="Go Back"
+            className="glass"
+            style={{ borderRadius: '50%', width: 44, height: 44 }}
+          >
+            <ArrowLeft size={22} color="var(--accent-primary)" />
+          </IconButton>
+          <div className="stack">
+            <div className="kicker">Partner Profile</div>
+            <h2 className="h2" style={{ fontSize: 28 }}>View Member Details</h2>
+          </div>
         </div>
-        {user && !isEditing && (
+
+        {user && (
           <button
             onClick={() => setIsEditing(true)}
             className="pill"
-            style={{ padding: "10px 16px", border: "1px solid var(--border)", cursor: "pointer" }}
+            style={{ 
+              padding: "12px 24px", 
+              background: 'var(--accent-soft)', 
+              color: 'var(--accent-primary)',
+              border: "none", 
+              cursor: "pointer",
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(231, 76, 91, 0.1)'
+            }}
           >
-            Edit Profile
+            Edit My Profile
           </button>
         )}
       </div>
@@ -162,24 +191,15 @@ export default function ProfilePage() {
         <div className="kicker">Photo</div>
         <div className="flex items-center justify-between gap-12" style={{ marginTop: 10, flexWrap: "wrap" }}>
           <div className="muted" style={{ lineHeight: 1.6 }}>
-            Upload a profile image (stored on Cloudinary).
-            {user ? " It will be saved to your Firestore profile." : " (Login to save it to your profile.)"}
+            Upload a profile image.
           </div>
-          <label className="pill" style={{ padding: "10px 12px", border: "1px solid var(--border)", cursor: "pointer" }}>
+          <label className="pill" style={{ padding: "10px 12px", border: "1px solid var(--glass-border)", cursor: "pointer", color: 'var(--accent-primary)', fontWeight: 600 }}>
             <input type="file" accept="image/*" onChange={onPickFile} disabled={uploading} style={{ display: "none" }} />
-            {uploading ? "Uploading..." : "Upload photo"}
+            {uploading ? "Uploading..." : "Update photo"}
           </label>
         </div>
-        {error ? (
-          <div className="muted" style={{ marginTop: 10, color: "var(--danger, #ff5a6a)" }}>
-            {error}
-          </div>
-        ) : null}
-        {success ? (
-          <div className="muted" style={{ marginTop: 10, color: "var(--success, #2ecc71)" }}>
-            {success}
-          </div>
-        ) : null}
+        {error && <div className="muted" style={{ marginTop: 10, color: "var(--accent-primary)" }}>{error}</div>}
+        {success && <div className="muted" style={{ marginTop: 10, color: "var(--accent-hot)" }}>{success}</div>}
       </div>
 
       <div className="glass p-6" style={{ borderRadius: 18, marginBottom: 18 }}>
@@ -198,19 +218,16 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div style={{ width: 320 }}>
+          <div style={{ width: 320 }} className="hidden md:block">
             <div className="kicker">Profile completion</div>
-            <div className="fmsProgress" style={{ marginTop: 10 }}>
-              <div className="fmsProgressFill" style={{ width: `${completion}%` }} />
-            </div>
-            <div className="muted" style={{ marginTop: 8, fontSize: 12, lineHeight: 1.6 }}>
-              Complete family and partner preference sections to improve recommendations.
+            <div className="fmsProgress" style={{ marginTop: 10, height: 8, background: 'rgba(231, 76, 91, 0.1)', borderRadius: 4, overflow: 'hidden' }}>
+              <div className="fmsProgressFill" style={{ width: `${completion}%`, height: '100%', background: 'var(--gradient-primary)' }} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid" style={{ gridTemplateColumns: "1.15fr 0.85fr", gap: 18 }}>
+      <div className="grid" style={{ gridTemplateColumns: window.innerWidth < 1024 ? "1fr" : "1.15fr 0.85fr", gap: 18 }}>
         <div className="stack" style={{ gap: 18 }}>
           <Section title="Personal Details">
             <div className="grid gridCols2">
@@ -260,7 +277,7 @@ export default function ProfilePage() {
 
           <Section title="About Me">
             <div className="muted" style={{ lineHeight: 1.8 }}>
-              {userProfile?.aboutMe || "-"}
+              {userProfile?.aboutMe || "Traditional and modern values combined. Deeply rooted in family culture."}
             </div>
           </Section>
         </div>
@@ -284,7 +301,6 @@ export default function ProfilePage() {
           </Section>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
-

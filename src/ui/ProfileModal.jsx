@@ -107,12 +107,13 @@ export function ProfileModal({ profile, onClose }) {
                     <span
                       className="pill"
                       style={{
-                        padding: "7px 10px",
-                        border: "1px solid rgba(255,255,255,0.18)",
-                        background: "rgba(198,163,91,0.22)",
-                        color: "white",
+                        padding: "7px 14px",
+                        border: "1px solid var(--border-theme)",
+                        background: "rgba(231, 76, 91, 0.1)",
+                        color: "var(--accent-primary)",
                         fontSize: 11,
-                        letterSpacing: 0.6
+                        letterSpacing: 0.6,
+                        boxShadow: "0 0 15px rgba(231, 76, 91, 0.1)"
                       }}
                     >
                       Match {profile.match}%

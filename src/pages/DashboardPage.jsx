@@ -1,5 +1,7 @@
 import React from "react";
 import { profiles, requestsReceived, chats } from "../ui/mockData.js";
+import { motion } from "framer-motion";
+import AnimatedBackground from "../components/AnimatedBackground.jsx";
 
 function StatCard({ label, value, helper }) {
   return (
@@ -21,22 +23,30 @@ export default function DashboardPage() {
   const completion = 78;
 
   return (
-    <div className="section">
-      <div className="stack" style={{ marginBottom: 16 }}>
-        <div className="kicker">Dashboard</div>
-        <h2 className="h2">Your profile and activity</h2>
-        <div className="muted" style={{ lineHeight: 1.7, maxWidth: 860 }}>
-          A quick summary of profile completion, matches, requests, and messages—presented simply for clarity.
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      style={{ paddingTop: 40 }}
+    >
+      <AnimatedBackground />
+      <div className="stack" style={{ marginBottom: 32, position: 'relative', zIndex: 1 }}>
+        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="kicker" style={{ color: 'var(--accent-primary)' }}>User Dashboard</motion.div>
+        <h2 className="h2" style={{ fontSize: 42 }}>Welcome back, <br /><span style={{ color: 'var(--accent-primary)' }}>FindMySelf</span> Profile</h2>
+        <div className="muted" style={{ lineHeight: 1.8, maxWidth: 700, fontSize: 16 }}>
+          A quick summary of profile completion, matches, requests, and messages—presented simply for clarity and elegance.
         </div>
       </div>
 
-      <div className="grid gridCols3">
+      <div className="grid gridCols3" style={{ position: 'relative', zIndex: 1, gap: 24 }}>
         <StatCard label="Profile completion" value={`${completion}%`} helper="Complete your details to improve match quality." />
-        <StatCard label="Matches" value={profiles.length} helper="Based on your preferences and activity." />
-        <StatCard label="Received requests" value={requestsReceived.length} helper="Review and respond respectfully." />
+        <StatCard label="Active Matches" value={profiles.length} helper="Recommendations based on your lifestyle." />
+        <StatCard label="Pending Requests" value={requestsReceived.length} helper="Review and respond to recent interest." />
       </div>
 
-      <div className="grid gridCols2" style={{ marginTop: 18 }}>
+      <div className="grid gridCols2" style={{ marginTop: 18, position: 'relative', zIndex: 1 }}>
         <div className="glass p-6" style={{ borderRadius: 18 }}>
           <div className="kicker">Recent messages</div>
           <div style={{ marginTop: 10 }} className="stack">
@@ -73,7 +83,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

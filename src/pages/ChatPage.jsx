@@ -113,10 +113,16 @@ export default function ChatPage() {
   );
 
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div className="stack" style={{ marginBottom: 16 }}>
         <div className="kicker">Chat</div>
-        <h2 className="h2">Simple and respectful conversations</h2>
+        <h2 className="h2" style={{ background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Simple and respectful conversations</h2>
       </div>
 
       <div className="grid" style={{ gridTemplateColumns: "360px 1fr", gap: 18 }}>
@@ -177,6 +183,10 @@ export default function ChatPage() {
             </div>
             
             <div className="flex flex-col md:flex-row items-end md:items-center gap-10">
+              <div className="flex items-center gap-2">
+                <div className="online-dot" />
+                <div className="muted text-[12px]">Online Now</div>
+              </div>
               <div className="muted text-[12px] hidden lg:block">Verified • Premium</div>
             </div>
           </div>
@@ -217,10 +227,13 @@ export default function ChatPage() {
                   <div
                     className="pill"
                     style={{
-                      padding: "10px 12px",
-                      border: "1px solid rgba(255,255,255,0.18)",
-                      background: m.senderId === user.uid ? "rgba(198,163,91,0.18)" : "rgba(255,255,255,0.06)",
-                      lineHeight: 1.6
+                      padding: "12px 18px",
+                      background: m.senderId === user.uid ? "var(--gradient-primary)" : "var(--glass)",
+                      color: m.senderId === user.uid ? "#fff" : "var(--text-primary)",
+                      borderRadius: m.senderId === user.uid ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                      border: '1px solid var(--glass-border)',
+                      lineHeight: 1.6,
+                      boxShadow: m.senderId === user.uid ? "0 4px 15px var(--border-glow)" : "none"
                     }}
                   >
                     {m.text}
@@ -232,7 +245,19 @@ export default function ChatPage() {
 
           <div className="hairline" style={{ margin: "14px 0" }} />
 
-          <div className="pill" style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div 
+            className="pill" 
+            style={{ 
+              display: "flex", 
+              gap: 10, 
+              alignItems: "center",
+              background: "var(--glass)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              padding: "8px",
+              border: "1px solid var(--glass-border)"
+            }}
+          >
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -269,7 +294,7 @@ export default function ChatPage() {
       <div className="md:hidden muted" style={{ marginTop: 12, fontSize: 12 }}>
         Tip: on mobile, use the bottom navigation to switch sections.
       </div>
-    </div>
+    </motion.div>
   );
 }
 

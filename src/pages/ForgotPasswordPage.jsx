@@ -1,10 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/Button.jsx";
+import { motion } from "framer-motion";
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="section">
+    <motion.div 
+      className="section"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       <div
         className="glass"
         style={{
@@ -33,7 +40,7 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
